@@ -1,12 +1,16 @@
 import instaloader
 import os
 import glob
+from dotenv import load_dotenv
+
+load_dotenv() 
 
 #text extraction
 from moviepy import VideoFileClip
 import speech_recognition as sr
 
-
+from google import genai
+client = genai.Client()
 
 
 L = instaloader.Instaloader(
@@ -59,8 +63,8 @@ def main():
     else:
         print("No MP4 files found in the directory.")
 
-
-    audio_file = latest_file.audio
+    video = VideoFileClip(latest_file)
+    audio_file = video.audio
     audio_file.write_audiofile("extracted_audio.wav")
 
     r = sr.Recognizer()
@@ -73,7 +77,26 @@ def main():
     print("Text is =================")
     print(text)
     
-    
+    prompt = f"""
+    Act as a Forensic Content Analyst. I will provide you with a transcript from a saved video. Your goal is to extract every specific detail to fulfill a high-precision knowledge graph.
+
+    Analyze the transcript and provide the output in the following format:
+
+    1. **The "Why":** In one sentence, identify the specific utility or value proposition of this video (e.g., "A tutorial on specific FFmpeg commands for audio merging").
+    2. **Entity Manifest:** List every specific Tool, Person, Brand, Library, or Location mentioned.
+    3. **Chronological Breakdown:** A step-by-step list of every action or point made, in order.
+    4. **Implicit Context:** Based on the tone and content, what was the user likely trying to solve or learn by saving this?
+    5. **Data Points:** Extract any specific numbers, prices, dates, or code-like snippets mentioned in the audio.
+
+    Transcript:{text}
+        """
+
+    interaction = client.interactions.create(
+    model="gemini-3.6-flash",
+    input=prompt
+    )
+    print("====================")
+    print(interaction.output_text)
 
 if __name__ == "__main__":
     main()
