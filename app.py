@@ -12,6 +12,9 @@ import speech_recognition as sr
 from google import genai
 client = genai.Client()
 
+from colorama import init, Fore, Back, Style
+init(autoreset=True)
+
 
 L = instaloader.Instaloader(
     download_pictures=False,
@@ -21,47 +24,60 @@ L = instaloader.Instaloader(
     post_metadata_txt_pattern=""
 )
 
-
+#Extracting Shortcode from reel's url
 def extractShortcode(url):
     parts = url.split("/")
     return parts[4]
 
 
+#deleting the audio file at last the program
+def deleteAudioFile():
+    file = glob.glob(r"C:\Users\CELLFI\OneDrive\Desktop\saved_reel_manage\*.wav")
+    if not file:
+        print(Fore.RED + "Not audio file founded")
+    else:
+        print("\n")
+        print(Fore.GREEN+f"Found {len(file)} files")
+        for file_path in file:
+            os.remove(file_path)
+            print(Fore.GREEN+f"\nDeleted audio file : {os.path.basename(file_path)}")
 
+
+# main function
 def main():
     #Login required
     username = "hilal.verse"
     L.load_session_from_file(username)
-    print(L.test_login())
+    print(Back.GREEN+L.test_login())
 
-    #Getting Shortcode:
+    #Invoking the function to get Shortcode:
     rUrl = input("Enter your url: ")
     my_shortcode = extractShortcode(rUrl)
-    print(my_shortcode)
+    print(Fore.GREEN+my_shortcode)
 
     try:
         post = instaloader.Post.from_shortcode(L.context, my_shortcode)
 
         if post.is_video:
             L.download_post(post, target="Reels_Download")
-            print("Download succesful!")
+            print(Fore.GREEN+"\nDownload succesful!")
         else:
-            print("The specified post is not a video, skipping download.")
+            print(Fore.RED+"\nThe specified post is not a video, skipping download.")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(Fore.RED+f"An error occurred: {e}")
 
     #folder path
-    folder_path = r'C:\Users\CELLFI\OneDrive\Desktop\saved_reel_manage\Reels_Download/*.mp4'
+    folder_path = r'C:\Users\CELLFI\OneDrive\Desktop\saved_reel_manage\Reels_Download\*.mp4'
 
     #getting all mp4 files
     mp4_files = glob.glob(folder_path)
 
     if mp4_files:
         latest_file = max(mp4_files, key=os.path.getctime)
-        print(f"The latest MP$ file is: {latest_file}")
+        print(f"\nThe latest MP4 file is: {latest_file}")
     else:
-        print("No MP4 files found in the directory.")
+        print(Fore.RED+"No MP4 files found in the directory.")
 
     video = VideoFileClip(latest_file)
     audio_file = video.audio
@@ -74,7 +90,7 @@ def main():
 
     text = r.recognize_google(data)
 
-    print("Text is =================")
+    print(Back.WHITE+Fore.GREEN+"\n EXTRACTED TEXT IS \n")
     print(text)
     
     prompt = f"""
@@ -95,9 +111,12 @@ def main():
     model="gemini-3.6-flash",
     input=prompt
     )
-    print("====================")
-    print(interaction.output_text)
+    print("\n RESULT \n ")
+    print(Back.WHITE+Fore.GREEN+interaction.output_text)
 
+    #Invoking the function to delete the extracted audio file and delete the downloaded reel file
+    deleteVideoFile()
+    deleteAudioFile()
 if __name__ == "__main__":
     main()
 
