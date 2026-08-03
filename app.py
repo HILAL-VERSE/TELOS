@@ -115,7 +115,6 @@ def main():
     print(Back.WHITE+Fore.GREEN+interaction.output_text)
 
     #Invoking the function to delete the extracted audio file and delete the downloaded reel file
-    deleteVideoFile()
     deleteAudioFile()
 if __name__ == "__main__":
     main()
