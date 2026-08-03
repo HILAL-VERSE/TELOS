@@ -2,12 +2,13 @@ import instaloader
 import os
 import glob
 from dotenv import load_dotenv
+import base64
+import time
+import sys
 
 load_dotenv() 
 
-#text extraction
-from moviepy import VideoFileClip
-import speech_recognition as sr
+
 
 from google import genai
 client = genai.Client()
@@ -30,18 +31,6 @@ def extractShortcode(url):
     return parts[4]
 
 
-#deleting the audio file at last the program
-def deleteAudioFile():
-    file = glob.glob(r"C:\Users\CELLFI\OneDrive\Desktop\saved_reel_manage\*.wav")
-    if not file:
-        print(Fore.RED + "Not audio file founded")
-    else:
-        print("\n")
-        print(Fore.GREEN+f"Found {len(file)} files")
-        for file_path in file:
-            os.remove(file_path)
-            print(Fore.GREEN+f"\nDeleted audio file : {os.path.basename(file_path)}")
-
 
 # main function
 def main():
@@ -63,6 +52,8 @@ def main():
             print(Fore.GREEN+"\nDownload succesful!")
         else:
             print(Fore.RED+"\nThe specified post is not a video, skipping download.")
+            sys.exit()
+            
 
     except Exception as e:
         print(Fore.RED+f"An error occurred: {e}")
@@ -78,44 +69,54 @@ def main():
         print(f"\nThe latest MP4 file is: {latest_file}")
     else:
         print(Fore.RED+"No MP4 files found in the directory.")
-
-    video = VideoFileClip(latest_file)
-    audio_file = video.audio
-    audio_file.write_audiofile("extracted_audio.wav")
-
-    r = sr.Recognizer()
-
-    with sr.AudioFile("extracted_audio.wav") as source:
-        data = r.record(source)
-
-    text = r.recognize_google(data)
-
-    print(Back.WHITE+Fore.GREEN+"\n EXTRACTED TEXT IS \n")
-    print(text)
+        sys.exit()
     
     prompt = f"""
-    Act as a Forensic Content Analyst. I will provide you with a transcript from a saved video. Your goal is to extract every specific detail to fulfill a high-precision knowledge graph.
 
-    Analyze the transcript and provide the output in the following format:
+  
+    ### UNIVERSAL CONTEXT (The Hilal-Verse)
+    You are an intake node for the Hilal-Verse ecosystem. 
+    - ECHO: The overarching intelligence umbrella.
+    - TELOS (Your Current Module): The "purpose" engine. Your goal is to extract the ultimate "why" and "telos" behind content to turn raw media into high-fidelity knowledge.
 
-    1. **The "Why":** In one sentence, identify the specific utility or value proposition of this video (e.g., "A tutorial on specific FFmpeg commands for audio merging").
-    2. **Entity Manifest:** List every specific Tool, Person, Brand, Library, or Location mentioned.
-    3. **Chronological Breakdown:** A step-by-step list of every action or point made, in order.
-    4. **Implicit Context:** Based on the tone and content, what was the user likely trying to solve or learn by saving this?
-    5. **Data Points:** Extract any specific numbers, prices, dates, or code-like snippets mentioned in the audio.
+    ### YOUR PERSONA
+    You are a Multimodal Forensic Historian and Investigative Journalist.
 
-    Transcript:{text}
-        """
+    ### PHASE 1: CATEGORIZATION & AUTHENTICITY
+    Identify the genre (Historical, News, Motivational, etc.). If it is History/News etc, kind of , verify claims and provide an Authenticity Score (1-10) with reasoning.
+
+    ### PHASE 2: THE DEFINITIVE NARRATIVE (Mastery Mode)
+    Write a long-form, cohesive essay (750+ words) explaining the content. Do NOT use bullet points. 
+    - If it is a historical event or such contents, you must complete the story for the user, providing the full lead-up, the event itself, and the aftermath.
+    - Explain complex concepts mid-flow so the user acquires total mastery.
+    - The prose must be detailed, professional, and immersive.
+
+    ### PHASE 3: STRUCTURED DATA (Appendix)
+    - Manifest: People, tools, locations, and brands.
+    - Implicit Context: The "between the lines" purpose.
+    - Research Roadmap: 3-5 specific topics to investigate next to complete the knowledge loop.
+
+    (Make it a structure output remove "#, etc it should be pretty readable")
+     """
+
+   
+
+    while not myfile.state or myfile.state.name != "ACTIVE":
+        print("Processing video...")
+        time.sleep(5)
+        myfile = client.files.get(name=myfile.name)
 
     interaction = client.interactions.create(
     model="gemini-3.6-flash",
-    input=prompt
+    input=[
+        {"type": "video", "uri": myfile.uri, "mime_type": myfile.mime_type},
+        {"type": "text", "text": prompt}
+    ]
     )
     print("\n RESULT \n ")
     print(Back.WHITE+Fore.GREEN+interaction.output_text)
 
-    #Invoking the function to delete the extracted audio file and delete the downloaded reel file
-    deleteAudioFile()
+
 if __name__ == "__main__":
     main()
 
