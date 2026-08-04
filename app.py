@@ -35,7 +35,7 @@ def extractShortcode(url):
 # main function
 def main():
     #Login required
-    username = "hilal.verse"
+    username = "yng.hiiilaaaal"
     L.load_session_from_file(username)
     print(Back.GREEN+L.test_login())
 
@@ -99,7 +99,7 @@ def main():
     (Make it a structure output remove "#, etc it should be pretty readable")
      """
 
-   
+    myfile = client.files.upload(file=latest_file)
 
     while not myfile.state or myfile.state.name != "ACTIVE":
         print("Processing video...")
