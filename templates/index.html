@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Send URL to Flask API</h1>
+    
+    <input type="url" id="url-input" placeholder="https://example.com" style="width: 300px; padding: 5px;">
+    <button id="submit-btn" style="padding: 5px 10px;">Analyze URL</button>
+
+    <pre id="output-box" style="background: #f4f4f4; padding: 10px; height: fit-content; width: 80%; white-space: pre-wrap;"></pre>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const rUrl = document.getElementById('url-input').value;
+            const outputBox = document.getElementById('output-box');
+
+            if(!rUrl){
+                outputBox.innerHTML = "Please enter the URL first";
+                return
+            }
+
+            outputBox.innerHTML = "Processing...";
+            targetUrl = "http://127.0.0.1:5000";
+
+            fetch('/process', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({ url: rUrl})
+            })
+            .then(response => response.json())
+            .then(data => {
+                const outputResult = data.Output;
+                outputBox.innerText = outputResult
+            })
+            .catch(error => {
+                console.error('Error : ', error);
+                outputBox.innerHTML = "An Error Ocured While Connecting to API"
+            });
+        });
+    </script>
+</body>
+</html>
