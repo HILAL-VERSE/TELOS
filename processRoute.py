@@ -16,6 +16,8 @@ temp_dir = tempfile.mkdtemp()
 from google import genai
 client = genai.Client()
 
+session_data = os.getenv("AUTH_SESSION")
+
 L = instaloader.Instaloader(
     download_pictures=False,
     download_geotags=False,
@@ -25,7 +27,7 @@ L = instaloader.Instaloader(
 )
 
 
-folder_path = r'C:\Users\CELLFI\OneDrive\Desktop\saved_reel_manage\Reels_Download\*.mp4'
+
 prompt = f"""
 
   

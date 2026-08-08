@@ -14,12 +14,18 @@
     <pre id="output-box" style="background: #f4f4f4; padding: 10px; height: fit-content; width: 80%; white-space: pre-wrap;"></pre>
 
     <script>
-        document.getElementById('submit-btn').addEventListener('click', () => {
+        document.getElementById('submit-btn').addEventListener('click', (e) => {
             const rUrl = document.getElementById('url-input').value;
             const outputBox = document.getElementById('output-box');
 
+            const btn = e.currentTarget;
+            btn.disabled = true;
+            btn.innerText = 'Analyzing....';
+
             if(!rUrl){
                 outputBox.innerHTML = "Please enter the URL first";
+                btn.disabled = false;
+                btn.innerText = 'Analyze URL'
                 return
             }
 
@@ -36,10 +42,14 @@
             .then(data => {
                 const outputResult = data.Output;
                 outputBox.innerText = outputResult
+                btn.disabled = false;
+                btn.innerText = 'Analyze URL'
             })
             .catch(error => {
                 console.error('Error : ', error);
                 outputBox.innerHTML = "An Error Ocured While Connecting to API"
+                btn.disabled = false;
+                btn.innerText = 'Analyze URL'
             });
         });
     </script>
