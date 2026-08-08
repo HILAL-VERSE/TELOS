@@ -8,6 +8,9 @@ import base64
 import time
 import sys
 
+import tempfile
+temp_dir = tempfile.mkdtemp()
+
 #load_dotenv() 
 
 from google import genai
@@ -98,47 +101,48 @@ def process():
                 "Message": "Couldn't find any shortcode from provide url"
             }), 400
 
-        post = instaloader.Post.from_shortcode(L.context, shortcode)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            L.dirname_pattern = temp_dir
+            post = instaloader.Post.from_shortcode(L.context, shortcode)
 
-        if post.is_video:
-            L.download_post(post,target="Reels_Download")
-        else:
-            return({
-                "Error": "Provide url is not a video"
-            }), 400
+            if post.is_video:
+                L.download_post(post,target="reel")
+            else:
+                return({
+                    "Error": "Provide url is not a video"
+                }), 400
 
-        mp4_files = glob.glob(folder_path)
-        if not mp4_files:
+            filename = os.listdir(temp_dir)[0]
+            video_file = os.path.join(temp_dir, filename)
+            if not video_file:
+                return jsonify({
+                    "Message": "Could Not Find ANy mp4 Files in the Directory"
+                }), 400
+
+
+            fileUpload = client.files.upload(file=video_file)
+            while not fileUpload.state or fileUpload.state.name != "ACTIVE":
+                print("Video processing")
+                time.sleep(5)
+                fileUpload = client.files.get(name=fileUpload.name)
+            
+
+            interaction = client.interactions.create(
+                model="gemini-3.6-flash",
+                input=[
+                    {"type": "video", "uri": fileUpload.uri, "mime_type": fileUpload.mime_type},
+                    {"type": "text", "text": prompt}
+                ]
+            )
+            finalOutput = interaction.output_text
+            client.files.delete(name=fileUpload.name)
+            
+
+
             return jsonify({
-                "Message": "Could Not Find ANy mp4 Files in the Directory"
-            }), 400
-        else:
-            latest_file = max(mp4_files, key=os.path.getctime)
-            latest_file_name = os.path.basename(latest_file)
-
-
-        fileUpload = client.files.upload(file=latest_file)
-        while not fileUpload.state or fileUpload.state.name != "ACTIVE":
-            print("Video processing")
-            time.sleep(5)
-            fileUpload = client.files.get(name=fileUpload.name)
-
-        interaction = client.interactions.create(
-            model="gemini-3.6-flash",
-            input=[
-                {"type": "video", "uri": fileUpload.uri, "mime_type": fileUpload.mime_type},
-                {"type": "text", "text": prompt}
-            ]
-        )
-        finalOutput = interaction.output_text
-        
-
-
-        return jsonify({
-            "Messaage" : "Succesfully downloaded video",
-            "Video Name" : latest_file_name,
-            "Output" : finalOutput
-        }), 201
+                "Messaage" : "Succesfully downloaded video",
+                "Output" : finalOutput
+            }), 201
     else:
         return jsonify({
             "Error": "Authenticatio failed"
