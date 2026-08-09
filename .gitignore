@@ -1,3 +1,4 @@
-/Reels_Download/
 .env
 extracted_audio.wav
+__pycache__/
+*.pyc
