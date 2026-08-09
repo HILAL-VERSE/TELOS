@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json"> 
     <title>Document</title>
 </head>
 <body>
@@ -14,6 +15,10 @@
     <pre id="output-box" style="background: #f4f4f4; padding: 10px; height: fit-content; width: 80%; white-space: pre-wrap;"></pre>
 
     <script>
+        if('serviceWorker' in navigator){
+            navigator.serviceWorker.register('/static/sw.js');
+        }
+        
         document.getElementById('submit-btn').addEventListener('click', (e) => {
             const rUrl = document.getElementById('url-input').value;
             const outputBox = document.getElementById('output-box');
