@@ -16,7 +16,7 @@ temp_dir = tempfile.mkdtemp()
 from google import genai
 client = genai.Client()
 
-session_data = os.getenv("AUTH_SESSION")
+
 
 L = instaloader.Instaloader(
     download_pictures=False,
@@ -25,8 +25,6 @@ L = instaloader.Instaloader(
     save_metadata=False,
     post_metadata_txt_pattern=""
 )
-
-
 
 prompt = f"""
 
@@ -58,8 +56,16 @@ prompt = f"""
 
 def authentication():
     try:
+        session_data = os.getenv("SESSION_DATA")
         username = "yng.hiiilaaaal"
-        L.load_session_from_file(username)
+        raw_bytes = base64.b64decode(session_data)
+
+        with tempfile.NamedTemporaryFile(delete=False) as temp_session_file:
+            temp_session_file.write(raw_bytes)
+            temp_session_path = temp_session_file.name
+        
+        L.load_session_from_file(username, filename=temp_session_path)
+        os.remove(temp_session_path)
         return "DONE"
     except Exception as e:
         raise Exception("Authentication failed")
