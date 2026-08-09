@@ -86,6 +86,12 @@ app = Flask(__name__)
 def home():
     return render_template("index.html")
 
+
+@app.route("/share-target")
+def share_target():
+    shared_url = request.args.get('url') or request.args.get('text', '')
+    return render_template("index.html", prefill_url=shared_url)
+
 @app.route("/process", methods=["POST"])
 def process():
     data = request.get_json()

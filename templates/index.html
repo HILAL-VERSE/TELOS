@@ -9,7 +9,7 @@
 <body>
     <h1>Send URL to Flask API</h1>
     
-    <input type="url" id="url-input" placeholder="https://example.com" style="width: 300px; padding: 5px;">
+    <input type="url" id="url-input" value="{{ prefill_url|default('' )}}" placeholder="https://example.com" style="width: 300px; padding: 5px;">
     <button id="submit-btn" style="padding: 5px 10px;">Analyze URL</button>
 
     <pre id="output-box" style="background: #f4f4f4; padding: 10px; height: fit-content; width: 80%; white-space: pre-wrap;"></pre>
@@ -18,7 +18,7 @@
         if('serviceWorker' in navigator){
             navigator.serviceWorker.register('/static/sw.js');
         }
-        
+
         document.getElementById('submit-btn').addEventListener('click', (e) => {
             const rUrl = document.getElementById('url-input').value;
             const outputBox = document.getElementById('output-box');
