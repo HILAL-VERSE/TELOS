@@ -5,15 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/static/manifest.json"> 
     <title>Document</title>
+
+    <style>
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Thin-trial.ttf) format('truetype');
+            font-weight: 100;
+            font-style: normal;
+            font-display: swap;
+        }
+
+         @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Thin-Italic-trial.ttf) format('truetype');
+            font-weight: 100;
+            font-style: italic;
+            font-display: swap;
+        }
+
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Semibold-trial.ttf) format('truetype');
+            font-weight: 200;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Semibold-Italic-trial.ttf) format('truetype');
+            font-weight: 200;
+            font-style: italic;
+            font-display: swap;
+        }
+
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Regular-trial.ttf) format('truetype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Extrabold-trial.ttf) format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Extrabold-Italic-trial.ttf) format('truetype');
+            font-weight: 400;
+            font-style: italic;
+            font-display: swap;
+        }
+
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Bold-trial.ttf) format('truetype');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face{
+            font-family: 'calvino';
+            src: url(/static/fonts/Calvino-Bold-Italic-trial.ttf) format('truetype');
+            font-weight: 500;
+            font-style: italic;
+            font-display: swap;
+        }
+    </style>
 </head>
-<body>
-    <h1>Send URL to Flask API</h1>
+<body style="padding: 0; margin: 0; background-color: #fdecbd; font-family: 'calvino', sans-serif;">
+    <div id="main" style="background-color: #fdecbd; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: 60px;">
+        <div id="nav">
+            <nav>
+
+            </nav>
+        </div>
+        <div id="hero" style="display: flex; flex-direction: column; align-items: center; gap: 0;">
+            <div class="logo-mask" style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <img src="/static/logo-512.png" alt="" style="width: 212px; height: 212px;">
+            </div>
+            <h1 style="color: #ff8a00; font-weight:300; text-align: center; font-size: 2rem; line-height: 1;" > <span style="font-weight: 500; font-size: 3.3rem;"> TELOS </span> <br>finds the purpose behind <br> what you keep</h1>
+        </div>
+        <div id="content" style="display: flex; flex-direction: column; align-items: center; gap: 0px;">
+            <h3 style="color: #924e00;">Send URL to Flask API</h3>
     
-    <input type="url" id="url-input" value="{{ prefill_url|default('' )}}" placeholder="https://example.com" style="width: 300px; padding: 5px;">
-    <button id="submit-btn" style="padding: 5px 10px;">Analyze URL</button>
+            <input type="url" id="url-input" value="{{ prefill_url|default('' )}}" placeholder="https://example.com" style="width: 300px; padding: 5px; border-radius: 10px; border: none;">
+            <button id="submit-btn" style="padding: 5px 10px; background-color: #ff8a00; margin-top: 10px; border: transparent; border-radius: 6px;">Analyze URL</button>
 
-    <pre id="output-box" style="background: #f4f4f4; padding: 10px; height: fit-content; width: 80%; white-space: pre-wrap;"></pre>
+            <pre id="output-box" style="background: #b46307; padding: 15px; height: fit-content; width: 80%; white-space: pre-wrap; color: white; font-family: 'calvino', sans-serif; font-weight: 100;"></pre>
 
+        </div>
+    </div>
+    
     <script>
         if('serviceWorker' in navigator){
             navigator.serviceWorker.register('/static/sw.js');
