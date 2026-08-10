@@ -13,6 +13,8 @@
             font-weight: 100;
             font-style: normal;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
          @font-face{
@@ -21,6 +23,8 @@
             font-weight: 100;
             font-style: italic;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
         @font-face{
@@ -29,6 +33,8 @@
             font-weight: 200;
             font-style: normal;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
         @font-face{
@@ -37,6 +43,8 @@
             font-weight: 200;
             font-style: italic;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
         @font-face{
@@ -45,6 +53,8 @@
             font-weight: 300;
             font-style: normal;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
         @font-face{
@@ -53,6 +63,8 @@
             font-weight: 400;
             font-style: normal;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
         @font-face{
@@ -61,6 +73,8 @@
             font-weight: 400;
             font-style: italic;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
         @font-face{
@@ -69,6 +83,8 @@
             font-weight: 500;
             font-style: normal;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
 
         @font-face{
@@ -77,10 +93,12 @@
             font-weight: 500;
             font-style: italic;
             font-display: swap;
+
+            unicode-range: U+0000-002F, U+003A-007F; 
         }
     </style>
 </head>
-<body style="padding: 0; margin: 0; background-color: #fdecbd; font-family: 'calvino', sans-serif;">
+<body style="padding: 0; margin: 0; background-color: #fdecbd; font-family: 'calvino', Arial, sans-serif;">
     <div id="main" style="background-color: #fdecbd; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: 60px;">
         <div id="nav">
             <nav>
@@ -99,7 +117,7 @@
             <input type="url" id="url-input" value="{{ prefill_url|default('' )}}" placeholder="https://example.com" style="width: 300px; padding: 5px; border-radius: 10px; border: none;">
             <button id="submit-btn" style="padding: 5px 10px; background-color: #ff8a00; margin-top: 10px; border: transparent; border-radius: 6px;">Analyze URL</button>
 
-            <pre id="output-box" style="background: #b46307; padding: 15px; height: fit-content; width: 80%; white-space: pre-wrap; color: white; font-family: 'calvino', sans-serif; font-weight: 100;"></pre>
+            <pre id="output-box" style="background: #b46307; padding: 15px; height: fit-content; width: 80%; white-space: pre-wrap; color: white; font-family: 'calvino', Arial, sans-serif; font-weight: 100;"></pre>
 
         </div>
     </div>
