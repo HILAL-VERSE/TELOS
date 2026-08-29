@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify, render_template
+import json
+import datetime
 
+from pymongo import MongoClient
 import instaloader
 import os
 import glob
-#from dotenv import load_dotenv
+from dotenv import load_dotenv
 import base64
 import time
 import sys
@@ -11,12 +14,15 @@ import sys
 import tempfile
 temp_dir = tempfile.mkdtemp()
 
-#load_dotenv() 
+load_dotenv() 
 
 from google import genai
+from google.genai import types
 client = genai.Client()
 
-
+mongo_client = MongoClient(os.environ["MONGO_URI"])
+db = mongo_client["telosDb"]
+collection = db["CoreData"]
 
 L = instaloader.Instaloader(
     download_pictures=False,
@@ -29,7 +35,7 @@ L = instaloader.Instaloader(
 prompt = f"""
 
   
-    ### UNIVERSAL CONTEXT (The Hilal-Verse)
+   ### UNIVERSAL CONTEXT (The Hilal-Verse)
     You are an intake node for the Hilal-Verse ecosystem. 
     - ECHO: The overarching intelligence umbrella.
     - TELOS (Your Current Module): The "purpose" engine. Your goal is to extract the ultimate "why" and "telos" behind content to turn raw media into high-fidelity knowledge.
@@ -37,8 +43,10 @@ prompt = f"""
     ### YOUR PERSONA
     You are a Multimodal Forensic Historian and Investigative Journalist.
 
-    ### PHASE 1: CATEGORIZATION & AUTHENTICITY
-    Identify the genre (Historical, News, Motivational, etc.). If it is History/News etc, kind of , verify claims and provide an Authenticity Score (1-10) with reasoning.
+    ### PHASE 1: INTENT CATEGORIZATION & AUTHENTICITY
+    Classify this content into exactly ONE of these categories: Learn, Try, Visit, Buy, Watch-again, Mixed.
+    - Use "Mixed" only if none of the other categories genuinely fit.
+    - If genre is Historical/News/factual, verify claims and provide an Authenticity Score (1-10) with reasoning. Otherwise, set authenticity_score to "N/A".
 
     ### PHASE 2: THE DEFINITIVE NARRATIVE (Mastery Mode)
     Write a long-form, cohesive essay (750+ words) explaining the content. Do NOT use bullet points. 
@@ -51,7 +59,8 @@ prompt = f"""
     - Implicit Context: The "between the lines" purpose.
     - Research Roadmap: 3-5 specific topics to investigate next to complete the knowledge loop.
 
-    (Make it a structure output remove "#, etc it should be pretty readable")
+    ### OUTPUT FORMAT
+    Respond ONLY with valid JSON matching the provided schema. Do not include markdown formatting, code fences, or any text outside the JSON object.
      """
 
 def authentication():
@@ -84,7 +93,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    CoreDataCollection = collection.find()
+    return render_template("index.html", items = CoreDataCollection)
 
 
 @app.route("/share-target")
@@ -108,6 +118,7 @@ def process():
 
     auth = authentication()
     if auth == "DONE":
+        print("Logged")
         shortcode = extractShortcode(url)
 
         if not shortcode:
@@ -141,17 +152,47 @@ def process():
                 fileUpload = client.files.get(name=fileUpload.name)
             
 
-            interaction = client.interactions.create(
-                model="gemini-3.6-flash",
-                input=[
-                    {"type": "video", "uri": fileUpload.uri, "mime_type": fileUpload.mime_type},
-                    {"type": "text", "text": prompt}
-                ]
+            response = client.models.generate_content(
+            model="gemini-3.6-flash",
+            contents=[
+                types.Part.from_uri(file_uri=fileUpload.uri, mime_type=fileUpload.mime_type),
+                prompt
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema={
+                    "type": "object",
+                    "properties": {
+                        "category": {"type": "string", "enum": ["Learn", "Try", "Visit", "Buy", "Watch-again", "Mixed"]},
+                        "type_genre": {"type": "string"},
+                        "authenticity_score": {"type": "string"},
+                        "reasoning": {"type": "string"},
+                        "definitive_narrative": {"type": "string"},
+                        "structured_data": {"type": "string"},
+                        "implicit_context": {"type": "string"},
+                        "research_roadmap": {"type": "string"}
+                    },
+                    "required": ["category", "type_genre", "authenticity_score", "reasoning", "definitive_narrative", "structured_data", "implicit_context", "research_roadmap"]
+                }
             )
-            finalOutput = interaction.output_text
-            client.files.delete(name=fileUpload.name)
-            
+        )
 
+            finalOutput = json.loads(response.text)
+            client.files.delete(name=fileUpload.name)
+
+            document = {
+                "category":finalOutput.get("category"),
+                "type_genre":finalOutput.get("type_genre"),
+                "authenticity_score": finalOutput.get("authenticity_score"),
+                "definitive_narrative": finalOutput.get("definitive_narrative"),
+                "structured_data": finalOutput.get("structured_data"),
+                "implicit_context": finalOutput.get("implicit_context"),
+                "research_roadmap": finalOutput.get("research_roadmap"),
+                "reasoning": finalOutput.get("reasoning"),
+                "timestamp": datetime.datetime.utcnow()
+            }
+
+            collection.insert_one(document)
 
             return jsonify({
                 "Messaage" : "Succesfully downloaded video",

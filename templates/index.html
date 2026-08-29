@@ -121,6 +121,37 @@
 
         </div>
     </div>
+
+    <div class="data-section"
+             style="background-color: #fdecbd;
+                    height: 100vh;
+                    display: flex;
+                    justify-content: center;
+                    padding: 40px;">
+
+                <div class="data-card"
+                     style="height: fit-content;
+                            width: 380px;
+                            background-color: #ff8a00;
+                            border-radius: 10px;
+                            display: flex;
+                            flex-direction: column;
+                            padding: 16px;
+                            color: white;
+                            font-family: 'calvino', Arial, sans-serif;">
+                        
+                            {% for item in items %}
+                                <h1 style="font-size: 14px;">
+                                    <strong>Genre  </strong> {{item.type_genre}}
+                                    <strong>Category of Content  </strong> {{item.category}}
+                                </h1>
+                                <p>Authenticity Scrore</p> {{item.authenticity_score}}
+                            {% else %}
+                                <p>Data not found</p>
+                            {% endfor %}
+                        
+                </div>
+        </div>
     
     <script>
         if('serviceWorker' in navigator){
@@ -154,7 +185,11 @@
             .then(response => response.json())
             .then(data => {
                 const outputResult = data.Output;
-                outputBox.innerText = outputResult
+                let html = "";
+                for(const key in outputResult) {
+                    html += `<div class="result-block"><strong>${key}:</strong> ${JSON.stringify(outputResult[key])}</div>`;
+                }
+                outputBox.innerHTML = html;
                 btn.disabled = false;
                 btn.innerText = 'Analyze URL'
             })
