@@ -98,7 +98,7 @@
         }
     </style>
 </head>
-<body style="padding: 0; margin: 0; background-color: #fdecbd; font-family: 'calvino', Arial, sans-serif;">
+<body style="padding: 0; margin: 0; background-color: #fdecbd; font-family: 'calvino', Arial, sans-serif; height: 100dvh; overflow: scroll; scrollbar-width: none;">
     <div id="main" style="background-color: #fdecbd; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: 60px;">
         <div id="nav">
             <nav>
@@ -112,46 +112,139 @@
             <h1 style="color: #ff8a00; font-weight:300; text-align: center; font-size: 2rem; line-height: 1;" > <span style="font-weight: 500; font-size: 3.3rem;"> TELOS </span> <br>finds the purpose behind <br> what you keep</h1>
         </div>
         <div id="content" style="display: flex; flex-direction: column; align-items: center; gap: 0px;">
-            <h3 style="color: #924e00;">Send URL to Flask API</h3>
+            <h3 style="color: #924e00;">Paste Your Url to Process</h3>
     
             <input type="url" id="url-input" value="{{ prefill_url|default('' )}}" placeholder="https://example.com" style="width: 300px; padding: 5px; border-radius: 10px; border: none;">
             <button id="submit-btn" style="padding: 5px 10px; background-color: #ff8a00; margin-top: 10px; border: transparent; border-radius: 6px;">Analyze URL</button>
 
-            <pre id="output-box" style="background: #b46307; padding: 15px; height: fit-content; width: 80%; white-space: pre-wrap; color: white; font-family: 'calvino', Arial, sans-serif; font-weight: 100;"></pre>
+            <pre id="output-box" style="background: #b46307; padding: 15px; height: 250px; overflow: scroll; width: 80%; scrollbar-width: none; white-space: pre-wrap; color: white; font-family: 'calvino', Arial, sans-serif; font-weight: 100;"></pre>
 
         </div>
     </div>
+    <nav style="display: flex;
+                justify-content: center;
+                justify-content: space-evenly;
+                align-items: center;
+                background-color: #ff8a00;
+                width: 100%;
+                height: 4rem;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;"
+                >
+                    <a href="#home" style="text-decoration: none; color: #fdecbd;" id="home-btn">
+                        <img style="height: 30px; width: 30px;" src="/static/images/home.png" alt="">
+                    </a>
+                    <a href="#home" style="text-decoration: none; color: #fdecbd;" id="data-btn">
+                        <img style="height: 40px; width: 40px;" src="/static/images/iphone.png" alt="">
+                    </a>
+    </nav>
 
-    <div class="data-section"
-             style="background-color: #fdecbd;
-                    height: 100vh;
-                    display: flex;
-                    justify-content: center;
-                    padding: 40px;">
+            <div id="data-section"
+                 style="display: none;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 1rem;">
+                {% for item in items %}
+                    <div class="data-card"
+                        style="height: fill-content;
+                                width: 380px;
+                                background-color: #ff8a00;
+                                border-radius: 10px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                padding: 16px;
+                                color: white;
+                                font-family: 'calvino', Arial, sans-serif;
+                                gap: 12px;">
+                            
+                                
+                                    <h1 style="font-size: 14px;">
+                                        <strong>Genre  </strong> {{item.type_genre}}
+                                        <strong>Category of Content  </strong> {{item.category}}
+                                        <p>Authenticity Scrore</p> {{item.authenticity_score}}
+                                    </h1>
+                                    <div class="definitive_narative_body"
+                                         style="width: 300px;
+                                                height: 120px;
+                                                overflow: scroll;
+                                                font-family: 'calvino', Arial, sans-serif;
+                                                font-weight: 300;
+                                                scrollbar-width: none;
+                                                border: 0.1rem solid;
+                                                border-radius: 8px;
+                                                padding: 10px;
+                                                border-color: #fdecbd;
+                                                line-height: 1.3rem;">
+                                        <p style="font-weight: 200;"><strong>definitive_narrative : </strong></p> {{item.definitive_narrative}}
+                                    </div>
+                                    <div class="structured_data_body"
+                                         style="width: 300px;
+                                                height: 120px;
+                                                overflow: scroll;
+                                                font-family: 'calvino', Arial, sans-serif;
+                                                font-weight: 300;
+                                                scrollbar-width: none;
+                                                border: 0.1rem solid;
+                                                border-radius: 8px;
+                                                padding: 10px;
+                                                border-color: #fdecbd;
+                                                line-height: 1.3rem;">
+                                        <p style="font-weight: 200;"><strong>structured_data : </strong></p> {{item.structured_data}}
+                                    </div>
+                                    <div class="implicit_context_body"
+                                         style="width: 300px;
+                                                height: 120px;
+                                                overflow: scroll;
+                                                font-family: 'calvino', Arial, sans-serif;
+                                                font-weight: 300;
+                                                scrollbar-width: none;
+                                                border: 0.1rem solid;
+                                                border-radius: 8px;
+                                                padding: 10px;
+                                                border-color: #fdecbd;
+                                                line-height: 1.3rem;">
+                                        <p style="font-weight: 200;"><strong>implicit_context : </strong></p> {{item.implicit_context}}
+                                    </div>
+                                    <div class="research_roadmap_body"
+                                         style="width: 300px;
+                                                height: 120px;
+                                                overflow: scroll;
+                                                font-family: 'calvino', Arial, sans-serif;
+                                                font-weight: 300;
+                                                scrollbar-width: none;
+                                                border: 0.1rem solid;
+                                                border-radius: 8px;
+                                                padding: 10px;
+                                                border-color: #fdecbd;
+                                                line-height: 1.3rem;">
+                                        <p style="font-weight: 200;"><strong>research_roadmap : </strong></p> {{item.research_roadmap}}
+                                    </div>
+                                    <div class="reasoning_body"
+                                         style="width: 300px;
+                                                height: 120px;
+                                                overflow: scroll;
+                                                font-family: 'calvino', Arial, sans-serif;
+                                                font-weight: 300;
+                                                scrollbar-width: none;
+                                                border: 0.1rem solid;
+                                                border-radius: 8px;
+                                                padding: 10px;
+                                                border-color: #fdecbd;
+                                                line-height: 1.3rem;">
+                                        <p style="font-weight: 200;"><strong>reasoning : </strong></p> {{item.reasoning}}
+                                    </div>
+                                    
+                    </div>
+                {% else %}
+                    <div>
+                                    <p>Data not found</p>
+                    </div>
+                {% endfor %}
+            </div>
 
-                <div class="data-card"
-                     style="height: fit-content;
-                            width: 380px;
-                            background-color: #ff8a00;
-                            border-radius: 10px;
-                            display: flex;
-                            flex-direction: column;
-                            padding: 16px;
-                            color: white;
-                            font-family: 'calvino', Arial, sans-serif;">
-                        
-                            {% for item in items %}
-                                <h1 style="font-size: 14px;">
-                                    <strong>Genre  </strong> {{item.type_genre}}
-                                    <strong>Category of Content  </strong> {{item.category}}
-                                </h1>
-                                <p>Authenticity Scrore</p> {{item.authenticity_score}}
-                            {% else %}
-                                <p>Data not found</p>
-                            {% endfor %}
-                        
-                </div>
-        </div>
     
     <script>
         if('serviceWorker' in navigator){
@@ -200,6 +293,21 @@
                 btn.innerText = 'Analyze URL'
             });
         });
+
+        document.getElementById('home-btn').addEventListener('click', () => {
+            const main = document.getElementById('main');
+            const dataSection = document.getElementById('data-section');
+            dataSection.style.display = "none";
+            main.style.display = "flex";
+
+        })
+
+        document.getElementById('data-btn').addEventListener('click', () => {
+            const dataSection = document.getElementById('data-section');
+            const main = document.getElementById('main');
+            main.style.display = "none";
+            dataSection.style.display = "flex"
+        })
     </script>
 </body>
 </html>
