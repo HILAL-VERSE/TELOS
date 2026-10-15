@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import json
 import datetime
-
 from pymongo import MongoClient
 import instaloader
 import os
@@ -65,8 +64,12 @@ prompt = f"""
 
 def authentication():
     try:
-        session_data = os.getenv("SESSION_DATA")
-        username = "yng.hiiilaaaal"
+        session_data = os.getenv("SESSION_DATA")        
+        username = os.getenv("USER_NAME")
+
+        if not session_data or not username:
+            raise ValueError("Could not find session data or username")
+
         raw_bytes = base64.b64decode(session_data)
 
         with tempfile.NamedTemporaryFile(delete=False) as temp_session_file:
