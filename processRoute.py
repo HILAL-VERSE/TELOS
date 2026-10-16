@@ -102,8 +102,9 @@ def home():
 
 @app.route("/share-target")
 def share_target():
+    CoreDataCollection = collection.find()
     shared_url = request.args.get('url') or request.args.get('text', '')
-    return render_template("index.html", prefill_url=shared_url)
+    return render_template("index.html", prefill_url=shared_url, items = CoreDataCollection)
 
 @app.route("/process", methods=["POST"])
 def process():
@@ -208,6 +209,7 @@ def process():
 
 
 
-
+'''
 if __name__ == '__main__':
     app.run(debug=True)
+'''
