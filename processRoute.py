@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import json
 import datetime
 from pymongo import MongoClient
@@ -13,10 +14,11 @@ import sys
 import tempfile
 temp_dir = tempfile.mkdtemp()
 
+
 load_dotenv() 
 
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 client = genai.Client()
 
 mongo_client = MongoClient(os.environ["MONGO_URI"])
@@ -61,6 +63,44 @@ prompt = f"""
     ### OUTPUT FORMAT
     Respond ONLY with valid JSON matching the provided schema. Do not include markdown formatting, code fences, or any text outside the JSON object.
      """
+
+
+@retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=2, max=16),
+        retry=retry_if_exception_type(errors.ServerError),
+        reraise=True
+)
+def generate_with_retry(client, fileUpload, prompt, types):
+    return client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=[
+            types.Part.from_uri(file_uri=fileUpload.uri, mime_type=fileUpload.mime_type),
+            prompt
+        ],
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema={
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": "string",
+                        "enum": ["Learn", "Try", "Visit", "Buy", "Watch_again", "Mixed"]
+                        },
+                    "type_genre": {"type": "string"},
+                    "authenticity_score": {"type": "string"},
+                    "reasoning": {"type": "string"},
+                    "definitive_narrative": {"type": "string"},
+                    "structured_data": {"type": "string"},
+                    "implicit_context": {"type": "string"},
+                    "research_roadmap": {"type": "string"}
+                },
+                "required": ["category", "type_genre", "authenticity_score", "reasoning", "definitive_narrative", "structured_data", "implicit_context", "research_roadmap"]
+            }
+        )
+    )
+
+
 
 def authentication():
     try:
@@ -156,47 +196,33 @@ def process():
                 fileUpload = client.files.get(name=fileUpload.name)
             
 
-            response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=[
-                types.Part.from_uri(file_uri=fileUpload.uri, mime_type=fileUpload.mime_type),
-                prompt
-            ],
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema={
-                    "type": "object",
-                    "properties": {
-                        "category": {"type": "string", "enum": ["Learn", "Try", "Visit", "Buy", "Watch-again", "Mixed"]},
-                        "type_genre": {"type": "string"},
-                        "authenticity_score": {"type": "string"},
-                        "reasoning": {"type": "string"},
-                        "definitive_narrative": {"type": "string"},
-                        "structured_data": {"type": "string"},
-                        "implicit_context": {"type": "string"},
-                        "research_roadmap": {"type": "string"}
-                    },
-                    "required": ["category", "type_genre", "authenticity_score", "reasoning", "definitive_narrative", "structured_data", "implicit_context", "research_roadmap"]
-                }
-            )
-        )
+            try:
+                response = generate_with_retry(client, fileUpload, prompt, types)
+            except errors.ServerError as e:
+                print(f"Failed after multiple retries: {e}")
 
             finalOutput = json.loads(response.text)
             client.files.delete(name=fileUpload.name)
+            try:
+                document = {
+                    "category":finalOutput.get("category"),
+                    "type_genre":finalOutput.get("type_genre"),
+                    "authenticity_score": finalOutput.get("authenticity_score"),
+                    "definitive_narrative": finalOutput.get("definitive_narrative"),
+                    "structured_data": finalOutput.get("structured_data"),
+                    "implicit_context": finalOutput.get("implicit_context"),
+                    "research_roadmap": finalOutput.get("research_roadmap"),
+                    "reasoning": finalOutput.get("reasoning"),
+                    "timestamp": datetime.datetime.utcnow()
+                }
 
-            document = {
-                "category":finalOutput.get("category"),
-                "type_genre":finalOutput.get("type_genre"),
-                "authenticity_score": finalOutput.get("authenticity_score"),
-                "definitive_narrative": finalOutput.get("definitive_narrative"),
-                "structured_data": finalOutput.get("structured_data"),
-                "implicit_context": finalOutput.get("implicit_context"),
-                "research_roadmap": finalOutput.get("research_roadmap"),
-                "reasoning": finalOutput.get("reasoning"),
-                "timestamp": datetime.datetime.utcnow()
-            }
-
-            collection.insert_one(document)
+                collection.insert_one(document)
+                print(f"Data inserted succefully : {document}" )
+            except Exception as e:
+                    raise Exception("Failed to insert document into MongoDB: " + str(e))
+                    return jsonify({
+                        "Error": "Failed to insert document into MongoDB"
+                    }), 500
 
             return jsonify({
                 "Messaage" : "Succesfully downloaded video",
@@ -204,7 +230,7 @@ def process():
             }), 201
     else:
         return jsonify({
-            "Error": "Authenticatio failed"
+            "Error": "Authentication failed"
         }), 401
 
 
