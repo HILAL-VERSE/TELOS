@@ -96,6 +96,12 @@
 
             unicode-range: U+0000-002F, U+003A-007F; 
         }
+
+        @media (display-mode: standalone) {
+            html, body{
+                overscroll-behavior-y: contain;
+            }
+        }
     </style>
 </head>
 <body style="padding: 0; margin: 0; background-color: #fdecbd; font-family: 'calvino', Arial, sans-serif; height: 100dvh; overflow: scroll; scrollbar-width: none;">
